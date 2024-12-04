@@ -44,12 +44,6 @@ async function main() {
   const provider = ethers.provider;
   const [_owner] = await ethers.getSigners();
 
-  // // If you wanna use local, replace this with _owner or another signer
-  // const _owner = new ethers.Wallet(
-  //   process.env.process.env.PRIVATE_KEY,
-  //   provider
-  // );
-
   const MT1Contract = new Contract(
     MY_TOKEN1_ADDRESS,
     artifacts.MyToken.abi,
