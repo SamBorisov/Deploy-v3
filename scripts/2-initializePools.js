@@ -1,4 +1,3 @@
-require("dotenv").config();
 const { Contract, BigNumber } = require("ethers");
 const bn = require("bignumber.js");
 const { promisify } = require("util");
@@ -12,11 +11,7 @@ loadEnvironmentVariables();
 
 MY_TOKEN1_ADDRESS = process.env.MY_TOKEN1_ADDRESS;
 MY_TOKEN2_ADDRESS = process.env.MY_TOKEN2_ADDRESS;
-WETH_ADDRESS = process.env.WETH_ADDRESS;
 FACTORY_ADDRESS = process.env.FACTORY_ADDRESS;
-SWAP_ROUTER_ADDRESS = process.env.SWAP_ROUTER_ADDRESS;
-NFT_DESCRIPTOR_ADDRESS = process.env.NFT_DESCRIPTOR_ADDRESS;
-POSITION_DESCRIPTOR_ADDRESS = process.env.POSITION_DESCRIPTOR_ADDRESS;
 POSITION_MANAGER_ADDRESS = process.env.POSITION_MANAGER_ADDRESS;
 
 const artifacts = {
@@ -35,22 +30,20 @@ function encodePriceSqrt(reserve1, reserve0) {
   );
 }
 
-const provider = ethers.provider;
-
-const nonfungiblePositionManager = new Contract(
-  POSITION_MANAGER_ADDRESS,
-  artifacts.NonfungiblePositionManager.abi,
-  provider
-);
-
-const factory = new Contract(
-  FACTORY_ADDRESS,
-  artifacts.UniswapV3Factory.abi,
-  provider
-);
-
 async function deployPool(token0, token1, fee, price) {
   const [owner] = await ethers.getSigners();
+
+  const nonfungiblePositionManager = new Contract(
+    POSITION_MANAGER_ADDRESS,
+    artifacts.NonfungiblePositionManager.abi,
+    owner
+  );
+
+  const factory = new Contract(
+    FACTORY_ADDRESS,
+    artifacts.UniswapV3Factory.abi,
+    owner
+  );
 
   await nonfungiblePositionManager
     .connect(owner)
