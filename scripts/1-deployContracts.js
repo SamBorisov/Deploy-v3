@@ -41,11 +41,11 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
 };
 
 async function main() {
-  // const [owner] = await ethers.getSigners();
+  const [owner] = await ethers.getSigners();
 
-  // If you wanna use local, replace this with _owner or another signer
-  const provider = ethers.provider;
-  const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  // // If you wanna use local, replace this with _owner or another signer
+  // const provider = ethers.provider;
+  // const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
   // WETH
   const Weth = new ContractFactory(WETH9.abi, WETH9.bytecode, owner);
