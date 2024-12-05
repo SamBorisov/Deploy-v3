@@ -1,7 +1,6 @@
 const { Contract } = require("ethers");
 const { Token } = require("@uniswap/sdk-core");
 const { Pool, Position, nearestUsableTick } = require("@uniswap/v3-sdk");
-
 const { loadEnvironmentVariables } = require("./_helpers");
 
 // Load environment variables

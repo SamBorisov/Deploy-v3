@@ -1,9 +1,7 @@
 const { Contract, utils } = require("ethers");
 const { promisify } = require("util");
 const fs = require("fs");
-
 const { loadEnvironmentVariables } = require("./_helpers");
-const WETH9 = require("../abis/WETH9.json");
 
 // Load environment variables
 loadEnvironmentVariables();
@@ -15,13 +13,7 @@ FACTORY_V2_ADDRESS = process.env.FACTORY_V2_ADDRESS;
 ROUTER_V2_ADDRESS = process.env.ROUTER_V2_ADDRESS;
 
 const artifacts = {
-  WETH9,
-  UniswapV3Factory: require("@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json"),
-  SwapRouter: require("@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json"),
   MyToken: require("../artifacts/contracts/MyToken.sol/MyToken.json"),
-  NFTDescriptor: require("@uniswap/v3-periphery/artifacts/contracts/libraries/NFTDescriptor.sol/NFTDescriptor.json"),
-  NonfungibleTokenPositionDescriptor: require("@uniswap/v3-periphery/artifacts/contracts/NonfungibleTokenPositionDescriptor.sol/NonfungibleTokenPositionDescriptor.json"),
-  NonfungiblePositionManager: require("@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json"),
   UniswapV2Factory: require("@uniswap/v2-core/build/UniswapV2Factory.json"),
   UniswapV2Router02: require("@uniswap/v2-periphery/build/UniswapV2Router02.json"),
   UniswapV2Pair: require("@uniswap/v2-periphery/build/IUniswapV2Pair.json"),
@@ -109,7 +101,10 @@ async function main() {
   reserves = await pair.getReserves();
   console.log("Reserves After", reserves);
 
-  let addresses = [`PAIR_ADDRESS=${pairAddress}`];
+  let addresses = [
+    `PAIR_ADDRESS=${pairAddress}`,
+    `PAIR_____________CREATED_____________V2`,
+  ];
   const data = "\n" + addresses.join("\n");
   const writeFile = promisify(fs.appendFile);
   const filePath = ".env.local";

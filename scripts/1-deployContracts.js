@@ -1,22 +1,21 @@
-require("dotenv").config();
 const { ContractFactory, utils } = require("ethers");
-const WETH9 = require("../abis/WETH9.json");
 const fs = require("fs");
 const { promisify } = require("util");
+const { loadEnvironmentVariables } = require("./_helpers");
+
+// Load environment variables
+loadEnvironmentVariables();
+
+const WETH_ADDRESS = process.env.WETH_ADDRESS;
+const NFT_DESCRIPTOR_ADDRESS = process.env.NFT_DESCRIPTOR_ADDRESS;
 
 const artifacts = {
-  WETH9,
   UniswapV3Factory: require("@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json"),
   SwapRouter: require("@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json"),
-  NFTDescriptor: require("@uniswap/v3-periphery/artifacts/contracts/libraries/NFTDescriptor.sol/NFTDescriptor.json"),
   NonfungibleTokenPositionDescriptor: require("@uniswap/v3-periphery/artifacts/contracts/NonfungibleTokenPositionDescriptor.sol/NonfungibleTokenPositionDescriptor.json"),
   NonfungiblePositionManager: require("@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json"),
   UniswapV3Migrator: require("@uniswap/v3-periphery/artifacts/contracts/V3Migrator.sol/V3Migrator.json"),
-  UniswapInterfaceMulticall: require("@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json"),
   QuoterV2: require("@uniswap/swap-router-contracts/artifacts/contracts/lens/QuoterV2.sol/QuoterV2.json"),
-  TickLens: require("@uniswap/v3-periphery/artifacts/contracts/lens/TickLens.sol/TickLens.json"),
-  UniswapV2Factory: require("@uniswap/v2-core/build/UniswapV2Factory.json"),
-  UniswapV2Router02: require("@uniswap/v2-periphery/build/UniswapV2Router02.json"),
 };
 
 const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
@@ -49,11 +48,7 @@ async function main() {
   // const provider = ethers.provider;
   // const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
-  // WETH
-  const Weth = new ContractFactory(WETH9.abi, WETH9.bytecode, owner);
-  const weth = await Weth.deploy();
-
-  // V3
+  // V3 Factory
   const Factory = new ContractFactory(
     artifacts.UniswapV3Factory.abi,
     artifacts.UniswapV3Factory.bytecode,
@@ -61,20 +56,15 @@ async function main() {
   );
   const factory = await Factory.deploy();
 
+  // Swap Router
   const SwapRouter = new ContractFactory(
     artifacts.SwapRouter.abi,
     artifacts.SwapRouter.bytecode,
     owner
   );
-  const swapRouter = await SwapRouter.deploy(factory.address, weth.address);
+  const swapRouter = await SwapRouter.deploy(factory.address, WETH_ADDRESS);
 
-  const NFTDescriptor = new ContractFactory(
-    artifacts.NFTDescriptor.abi,
-    artifacts.NFTDescriptor.bytecode,
-    owner
-  );
-  const nftDescriptor = await NFTDescriptor.deploy();
-
+  // NFT Descriptor Library Linking
   const linkedBytecode = linkLibraries(
     {
       bytecode: artifacts.NonfungibleTokenPositionDescriptor.bytecode,
@@ -90,10 +80,11 @@ async function main() {
       },
     },
     {
-      NFTDescriptor: nftDescriptor.address,
+      NFTDescriptor: NFT_DESCRIPTOR_ADDRESS,
     }
   );
 
+  // NFT Descriptor
   const nativeCurrencyLabelBytes = utils.formatBytes32String("WETH");
   const NonfungibleTokenPositionDescriptor = new ContractFactory(
     artifacts.NonfungibleTokenPositionDescriptor.abi,
@@ -102,10 +93,11 @@ async function main() {
   );
   const nonfungibleTokenPositionDescriptor =
     await NonfungibleTokenPositionDescriptor.deploy(
-      weth.address,
+      WETH_ADDRESS,
       nativeCurrencyLabelBytes
     );
 
+  // Nonfungible Position Manager
   const NonfungiblePositionManager = new ContractFactory(
     artifacts.NonfungiblePositionManager.abi,
     artifacts.NonfungiblePositionManager.bytecode,
@@ -113,10 +105,11 @@ async function main() {
   );
   const nonfungiblePositionManager = await NonfungiblePositionManager.deploy(
     factory.address,
-    weth.address,
+    WETH_ADDRESS,
     nonfungibleTokenPositionDescriptor.address
   );
 
+  // V3 Migrator
   const V3Migrator = new ContractFactory(
     artifacts.UniswapV3Migrator.abi,
     artifacts.UniswapV3Migrator.bytecode,
@@ -124,77 +117,32 @@ async function main() {
   );
   const v3Migrator = await V3Migrator.deploy(
     factory.address,
-    weth.address,
+    WETH_ADDRESS,
     nonfungiblePositionManager.address
   );
 
-  const UniswapInterfaceMulticall = new ContractFactory(
-    artifacts.UniswapInterfaceMulticall.abi,
-    artifacts.UniswapInterfaceMulticall.bytecode,
-    owner
-  );
-  const uniswapInterfaceMulticall = await UniswapInterfaceMulticall.deploy();
-
+  // Quoter V2 (for V3 contracts but second version of Quoter)
   const QuoterV2 = new ContractFactory(
     artifacts.QuoterV2.abi,
     artifacts.QuoterV2.bytecode,
     owner
   );
-  const quoterV2 = await QuoterV2.deploy(factory.address, weth.address);
-
-  const TickLens = new ContractFactory(
-    artifacts.TickLens.abi,
-    artifacts.TickLens.bytecode,
-    owner
-  );
-  const tickLens = await TickLens.deploy();
-
-  // V2
-  const FactoryV2 = new ContractFactory(
-    artifacts.UniswapV2Factory.abi,
-    artifacts.UniswapV2Factory.bytecode,
-    owner
-  );
-  const factoryV2 = await FactoryV2.deploy(owner.address);
-
-  const RouterV2 = new ContractFactory(
-    artifacts.UniswapV2Router02.abi,
-    artifacts.UniswapV2Router02.bytecode,
-    owner
-  );
-  const routerV2 = await RouterV2.deploy(factoryV2.address, weth.address);
-
-  // Create 2 mock tokens and mint to owner
-  const amountToMint = ethers.utils.parseEther("1000000000");
-
-  const MyToken1 = await ethers.getContractFactory("MyToken", owner);
-  const myToken1 = await MyToken1.deploy("MyToken1", "MT1");
-  await myToken1.mint(owner.address, amountToMint);
-
-  const MyToken2 = await ethers.getContractFactory("MyToken", owner);
-  const myToken2 = await MyToken2.deploy("MyToken2", "MT2");
-  await myToken2.mint(owner.address, amountToMint);
+  const quoterV2 = await QuoterV2.deploy(factory.address, WETH_ADDRESS);
 
   // Write addresses to .env.local
   let addresses = [
-    `WETH_ADDRESS=${weth.address}`,
     `FACTORY_ADDRESS=${factory.address}`,
     `SWAP_ROUTER_ADDRESS=${swapRouter.address}`,
-    `NFT_DESCRIPTOR_ADDRESS=${nftDescriptor.address}`,
     `POSITION_DESCRIPTOR_ADDRESS=${nonfungibleTokenPositionDescriptor.address}`,
     `POSITION_MANAGER_ADDRESS=${nonfungiblePositionManager.address}`,
     `V3_MIGRATOR_ADDRESS=${v3Migrator.address}`,
-    `MULTICALL_ADDRESS=${uniswapInterfaceMulticall.address}`,
     `QUOTER_V2_ADDRESS=${quoterV2.address}`,
-    `TICK_LENS_ADDRESS=${tickLens.address}`,
-    `FACTORY_V2_ADDRESS=${factoryV2.address}`,
-    `ROUTER_V2_ADDRESS=${routerV2.address}`,
-    `MY_TOKEN1_ADDRESS=${myToken1.address}`,
-    `MY_TOKEN2_ADDRESS=${myToken2.address}`,
+    `SECOND_______DEPLOYMENT_______FINISHED`,
   ];
-  const data = addresses.join("\n");
 
-  const writeFile = promisify(fs.writeFile);
+  const data = "\n" + addresses.join("\n");
+
+  const writeFile = promisify(fs.appendFile);
   const filePath = ".env.local";
   return writeFile(filePath, data)
     .then(() => {

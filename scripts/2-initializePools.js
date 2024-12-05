@@ -2,9 +2,8 @@ const { Contract, BigNumber } = require("ethers");
 const bn = require("bignumber.js");
 const { promisify } = require("util");
 const fs = require("fs");
-bn.config({ EXPONENTIAL_AT: 999999, DECIMAL_PLACES: 40 });
-
 const { loadEnvironmentVariables } = require("./_helpers");
+bn.config({ EXPONENTIAL_AT: 999999, DECIMAL_PLACES: 40 });
 
 // Load environment variables
 loadEnvironmentVariables();
@@ -63,7 +62,10 @@ async function main() {
     encodePriceSqrt(1, 1)
   );
 
-  let addresses = [`TOKEN_POOL=${tokenPool}`];
+  let addresses = [
+    `TOKEN_POOL=${tokenPool}`,
+    `POOL____________CREATED_____________V3`,
+  ];
   const data = "\n" + addresses.join("\n");
   const writeFile = promisify(fs.appendFile);
   const filePath = ".env.local";
