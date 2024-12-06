@@ -58,7 +58,7 @@ async function main() {
   const tokenPool = await deployPool(
     MY_TOKEN1_ADDRESS,
     MY_TOKEN2_ADDRESS,
-    500,
+    100,
     encodePriceSqrt(1, 1)
   );
 

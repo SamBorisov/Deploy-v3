@@ -3,16 +3,26 @@ require("@nomicfoundation/hardhat-toolbox");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: {
-    version: "0.8.17",
+  solidity: { // V3
+    version: "0.7.6",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 5000,
+        runs: 1000,
         details: { yul: false },
       },
     },
   },
+  // solidity: { // V2
+  //   version: "0.6.6",
+  //   settings: {
+  //     optimizer: {
+  //       enabled: true,
+  //       runs: 999999,
+  //       details: { yul: false },
+  //     },
+  //   },
+  // },
   networks: {
     hydraChain: {
       url: process.env.HYDRA_CHAIN_RPC || "",
@@ -32,7 +42,7 @@ module.exports = {
     hardhat: {
       // allow impersonation of smart contracts without modifying balance
       gasPrice: 0,
-      hardfork: "berlin",
+      hardfork: "istanbul",
       allowUnlimitedContractSize: true,
     },
   },

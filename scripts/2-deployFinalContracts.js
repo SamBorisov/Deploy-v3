@@ -7,11 +7,12 @@ const { loadEnvironmentVariables } = require("./_helpers");
 loadEnvironmentVariables();
 
 const WETH_ADDRESS = process.env.WETH_ADDRESS;
+const FACTORY_ADDRESS = process.env.FACTORY_ADDRESS;
+const FACTORY_V2_ADDRESS = process.env.FACTORY_V2_ADDRESS;
 const NFT_DESCRIPTOR_ADDRESS = process.env.NFT_DESCRIPTOR_ADDRESS;
 
 const artifacts = {
-  UniswapV3Factory: require("@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json"),
-  SwapRouter: require("@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json"),
+  SwapRouter: require("@uniswap/swap-router-contracts/artifacts/contracts/SwapRouter02.sol/SwapRouter02.json"),
   NonfungibleTokenPositionDescriptor: require("@uniswap/v3-periphery/artifacts/contracts/NonfungibleTokenPositionDescriptor.sol/NonfungibleTokenPositionDescriptor.json"),
   NonfungiblePositionManager: require("@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json"),
   UniswapV3Migrator: require("@uniswap/v3-periphery/artifacts/contracts/V3Migrator.sol/V3Migrator.json"),
@@ -42,27 +43,11 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
 };
 
 async function main() {
-  const [owner] = await ethers.getSigners();
+  // const [owner] = await ethers.getSigners();
 
-  // // If you wanna use local, replace this with _owner or another signer
-  // const provider = ethers.provider;
-  // const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-
-  // V3 Factory
-  const Factory = new ContractFactory(
-    artifacts.UniswapV3Factory.abi,
-    artifacts.UniswapV3Factory.bytecode,
-    owner
-  );
-  const factory = await Factory.deploy();
-
-  // Swap Router
-  const SwapRouter = new ContractFactory(
-    artifacts.SwapRouter.abi,
-    artifacts.SwapRouter.bytecode,
-    owner
-  );
-  const swapRouter = await SwapRouter.deploy(factory.address, WETH_ADDRESS);
+  // If you wanna use local, replace this with _owner or another signer
+  const provider = ethers.provider;
+  const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
   // NFT Descriptor Library Linking
   const linkedBytecode = linkLibraries(
@@ -97,6 +82,11 @@ async function main() {
       nativeCurrencyLabelBytes
     );
 
+  console.log(
+    "NFT Descriptor deployed to:",
+    nonfungibleTokenPositionDescriptor.address
+  );
+
   // Nonfungible Position Manager
   const NonfungiblePositionManager = new ContractFactory(
     artifacts.NonfungiblePositionManager.abi,
@@ -104,10 +94,30 @@ async function main() {
     owner
   );
   const nonfungiblePositionManager = await NonfungiblePositionManager.deploy(
-    factory.address,
+    FACTORY_ADDRESS,
     WETH_ADDRESS,
     nonfungibleTokenPositionDescriptor.address
   );
+
+  console.log(
+    "NFT Position Manager deployed to:",
+    nonfungiblePositionManager.address
+  );
+
+  // Swap Router (02 from SWAP ROUTER CONTRACTS)
+  const SwapRouter = new ContractFactory(
+    artifacts.SwapRouter.abi,
+    artifacts.SwapRouter.bytecode,
+    owner
+  );
+  const swapRouter = await SwapRouter.deploy(
+    FACTORY_V2_ADDRESS,
+    FACTORY_ADDRESS,
+    nonfungiblePositionManager.address,
+    WETH_ADDRESS
+  );
+
+  console.log("Swap Router deployed to:", swapRouter.address);
 
   // V3 Migrator
   const V3Migrator = new ContractFactory(
@@ -116,10 +126,12 @@ async function main() {
     owner
   );
   const v3Migrator = await V3Migrator.deploy(
-    factory.address,
+    FACTORY_ADDRESS,
     WETH_ADDRESS,
     nonfungiblePositionManager.address
   );
+
+  console.log("V3 Migrator deployed to:", v3Migrator.address);
 
   // Quoter V2 (for V3 contracts but second version of Quoter)
   const QuoterV2 = new ContractFactory(
@@ -127,17 +139,18 @@ async function main() {
     artifacts.QuoterV2.bytecode,
     owner
   );
-  const quoterV2 = await QuoterV2.deploy(factory.address, WETH_ADDRESS);
+  const quoterV2 = await QuoterV2.deploy(FACTORY_ADDRESS, WETH_ADDRESS);
+
+  console.log("Quoter V2 deployed to:", quoterV2.address);
 
   // Write addresses to .env.local
   let addresses = [
-    `FACTORY_ADDRESS=${factory.address}`,
     `SWAP_ROUTER_ADDRESS=${swapRouter.address}`,
     `POSITION_DESCRIPTOR_ADDRESS=${nonfungibleTokenPositionDescriptor.address}`,
     `POSITION_MANAGER_ADDRESS=${nonfungiblePositionManager.address}`,
     `V3_MIGRATOR_ADDRESS=${v3Migrator.address}`,
     `QUOTER_V2_ADDRESS=${quoterV2.address}`,
-    `SECOND_______DEPLOYMENT_______FINISHED`,
+    `___________DEPLOYED_ADDRESSES_FINAL___________`,
   ];
 
   const data = "\n" + addresses.join("\n");
@@ -155,8 +168,8 @@ async function main() {
 }
 
 /*
-    npx hardhat run --network localhost scripts/1-deployContracts.js
-    npx hardhat run --network hydraTest scripts/1-deployContracts.js
+    npx hardhat run --network localhost scripts/2-deployFinalContracts.js
+    npx hardhat run --network hydraTest scripts/2-deployFinalContracts.js
 */
 
 main()

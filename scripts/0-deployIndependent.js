@@ -5,11 +5,10 @@ const fs = require("fs");
 const { promisify } = require("util");
 
 const artifacts = {
+  UniswapV3Factory: require("@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json"),
   NFTDescriptor: require("@uniswap/v3-periphery/artifacts/contracts/libraries/NFTDescriptor.sol/NFTDescriptor.json"),
   UniswapInterfaceMulticall: require("@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json"),
   TickLens: require("@uniswap/v3-periphery/artifacts/contracts/lens/TickLens.sol/TickLens.json"),
-  UniswapV2Factory: require("@uniswap/v2-core/build/UniswapV2Factory.json"),
-  UniswapV2Router02: require("@uniswap/v2-periphery/build/UniswapV2Router02.json"),
   WETH9,
 };
 
@@ -24,6 +23,28 @@ async function main() {
   const Weth = new ContractFactory(WETH9.abi, WETH9.bytecode, owner);
   const weth = await Weth.deploy();
 
+  console.log("WETH deployed to:", weth.address);
+
+  // V3 Factory
+  const Factory = new ContractFactory(
+    artifacts.UniswapV3Factory.abi,
+    artifacts.UniswapV3Factory.bytecode,
+    owner
+  );
+  const factory = await Factory.deploy();
+
+  console.log("V3 Factory deployed to:", factory.address);
+
+  // Add 0.01% fee to factory
+  const ONE_BP_FEE = 100;
+  const ONE_BP_TICK_SPACING = 1;
+  const tx = await factory
+    .connect(owner)
+    .enableFeeAmount(ONE_BP_FEE, ONE_BP_TICK_SPACING);
+  await tx.wait();
+
+  console.log("Fee 0.01% added to factory.");
+
   // NFT Descriptor Library
   const NFTDescriptor = new ContractFactory(
     artifacts.NFTDescriptor.abi,
@@ -31,6 +52,8 @@ async function main() {
     owner
   );
   const nftDescriptor = await NFTDescriptor.deploy();
+
+  console.log("NFT Descriptor deployed to:", nftDescriptor.address);
 
   // Multicall Interface
   const UniswapInterfaceMulticall = new ContractFactory(
@@ -40,6 +63,11 @@ async function main() {
   );
   const uniswapInterfaceMulticall = await UniswapInterfaceMulticall.deploy();
 
+  console.log(
+    "Multicall Interface deployed to:",
+    uniswapInterfaceMulticall.address
+  );
+
   // TickLens
   const TickLens = new ContractFactory(
     artifacts.TickLens.abi,
@@ -48,21 +76,7 @@ async function main() {
   );
   const tickLens = await TickLens.deploy();
 
-  // V2 Factory
-  const FactoryV2 = new ContractFactory(
-    artifacts.UniswapV2Factory.abi,
-    artifacts.UniswapV2Factory.bytecode,
-    owner
-  );
-  const factoryV2 = await FactoryV2.deploy(owner.address);
-
-  // V2 Router
-  const RouterV2 = new ContractFactory(
-    artifacts.UniswapV2Router02.abi,
-    artifacts.UniswapV2Router02.bytecode,
-    owner
-  );
-  const routerV2 = await RouterV2.deploy(factoryV2.address, weth.address);
+  console.log("TickLens deployed to:", tickLens.address);
 
   // Create 2 mock tokens and mint to owner (if needed)
   const amountToMint = ethers.utils.parseEther("1000000000");
@@ -71,21 +85,24 @@ async function main() {
   const myToken1 = await MyToken1.deploy("MyToken1", "MT1");
   await myToken1.mint(owner.address, amountToMint);
 
+  console.log("MyToken1 deployed to:", myToken1.address);
+
   const MyToken2 = await ethers.getContractFactory("MyToken", owner);
   const myToken2 = await MyToken2.deploy("MyToken2", "MT2");
   await myToken2.mint(owner.address, amountToMint);
 
+  console.log("MyToken2 deployed to:", myToken2.address);
+
   // Write addresses to .env.local
   let addresses = [
     `WETH_ADDRESS=${weth.address}`,
+    `FACTORY_ADDRESS=${factory.address}`,
     `NFT_DESCRIPTOR_ADDRESS=${nftDescriptor.address}`,
     `MULTICALL_ADDRESS=${uniswapInterfaceMulticall.address}`,
     `TICK_LENS_ADDRESS=${tickLens.address}`,
-    `FACTORY_V2_ADDRESS=${factoryV2.address}`,
-    `ROUTER_V2_ADDRESS=${routerV2.address}`,
     `MY_TOKEN1_ADDRESS=${myToken1.address}`,
     `MY_TOKEN2_ADDRESS=${myToken2.address}`,
-    `FIRST_______DEPLOYMENT_______FINISHED`,
+    `___________DEPLOYED_ADDRESSES_FIRST___________`,
   ];
   const data = addresses.join("\n");
 
