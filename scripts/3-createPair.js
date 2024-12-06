@@ -119,8 +119,8 @@ async function main() {
 }
 
 /*
-    npx hardhat run --network localhost scripts/5-createPair.js
-    npx hardhat run --network hydraTest scripts/5-createPair.js
+    npx hardhat run --network localhost scripts/3-createPair.js
+    npx hardhat run --network hydraTest scripts/3-createPair.js
 */
 
 main()

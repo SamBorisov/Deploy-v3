@@ -80,8 +80,8 @@ async function main() {
 }
 
 /*
-    npx hardhat run --network localhost scripts/2-initializePools.js
-    npx hardhat run --network hydraTest scripts/2-initializePools.js
+    npx hardhat run --network localhost scripts/3.1-initializePools.js
+    npx hardhat run --network hydraTest scripts/3.1-initializePools.js
 */
 
 main()

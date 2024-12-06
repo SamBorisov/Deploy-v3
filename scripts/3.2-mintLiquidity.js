@@ -140,8 +140,8 @@ async function main() {
 }
 
 /*
-    npx hardhat run --network localhost scripts/3-mintLiquidity.js
-    npx hardhat run --network hydraTest scripts/3-mintLiquidity.js
+    npx hardhat run --network localhost scripts/3.2-mintLiquidity.js
+    npx hardhat run --network hydraTest scripts/3.2-mintLiquidity.js
 */
 
 main()
