@@ -70,7 +70,7 @@ async function main() {
   );
 
   // NFT Descriptor
-  const nativeCurrencyLabelBytes = utils.formatBytes32String("WETH");
+  const nativeCurrencyLabelBytes = utils.formatBytes32String("WHYDRA"); // Change to the symbol of your token
   const NonfungibleTokenPositionDescriptor = new ContractFactory(
     artifacts.NonfungibleTokenPositionDescriptor.abi,
     linkedBytecode,
@@ -170,6 +170,7 @@ async function main() {
 /*
     npx hardhat run --network localhost scripts/2-deployFinalContracts.js
     npx hardhat run --network hydraTest scripts/2-deployFinalContracts.js
+    npx hardhat run --network devTest scripts/2-deployFinalContracts.js
 */
 
 main()

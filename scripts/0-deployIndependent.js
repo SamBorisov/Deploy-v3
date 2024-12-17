@@ -121,6 +121,7 @@ async function main() {
 /*
     npx hardhat run --network localhost scripts/0-deployIndependent.js
     npx hardhat run --network hydraTest scripts/0-deployIndependent.js
+    npx hardhat run --network devTest scripts/0-deployIndependent.js
 */
 
 main()

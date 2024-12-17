@@ -64,6 +64,7 @@ async function main() {
 /*
     npx hardhat run --network localhost scripts/1-deployV2Contracts.js
     npx hardhat run --network hydraTest scripts/1-deployV2Contracts.js
+    npx hardhat run --network devTest scripts/1-deployV2Contracts.js
 */
 
 main()
