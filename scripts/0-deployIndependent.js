@@ -1,6 +1,8 @@
+// npx hardhat run scripts/0-deployIndependent.js --network hydraTest
+
 require("dotenv").config();
 const { ContractFactory, utils } = require("ethers");
-const WETH9 = require("../abis/WETH9.json");
+const WHYDRA = require("../abis/WHYDRA.json");
 const fs = require("fs");
 const { promisify } = require("util");
 
@@ -9,7 +11,7 @@ const artifacts = {
   NFTDescriptor: require("@uniswap/v3-periphery/artifacts/contracts/libraries/NFTDescriptor.sol/NFTDescriptor.json"),
   UniswapInterfaceMulticall: require("@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json"),
   TickLens: require("@uniswap/v3-periphery/artifacts/contracts/lens/TickLens.sol/TickLens.json"),
-  WETH9,
+  WHYDRA,
 };
 
 async function main() {
@@ -19,11 +21,9 @@ async function main() {
   // const provider = ethers.provider;
   // const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
-  // WETH
-  const Weth = new ContractFactory(WETH9.abi, WETH9.bytecode, owner);
-  const weth = await Weth.deploy();
-
-  console.log("WETH deployed to:", weth.address);
+  // WHYDRA
+  const WHYDRA = new ContractFactory(WHYDRA.abi, WHYDRA.bytecode, owner);
+  const whydra = await WHYDRA.deploy();
 
   // V3 Factory
   const Factory = new ContractFactory(
@@ -95,7 +95,7 @@ async function main() {
 
   // Write addresses to .env.local
   let addresses = [
-    `WETH_ADDRESS=${weth.address}`,
+    `WHYDRA_ADDRESS=${whydra.address}`,
     `FACTORY_ADDRESS=${factory.address}`,
     `NFT_DESCRIPTOR_ADDRESS=${nftDescriptor.address}`,
     `MULTICALL_ADDRESS=${uniswapInterfaceMulticall.address}`,

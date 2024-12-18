@@ -1,3 +1,5 @@
+// npx hardhat run scripts/1-deployV2Contracts.js --network hydraTest
+
 const { ContractFactory, utils } = require("ethers");
 const fs = require("fs");
 const { promisify } = require("util");
@@ -6,7 +8,7 @@ const { loadEnvironmentVariables } = require("./_helpers");
 // Load environment variables
 loadEnvironmentVariables();
 
-const WETH_ADDRESS = process.env.WETH_ADDRESS;
+const WHYDRA_ADDRESS = process.env.WHYDRA_ADDRESS;
 
 const artifacts = {
   UniswapV2Factory: require("@uniswap/v2-core/build/UniswapV2Factory.json"),
@@ -36,7 +38,7 @@ async function main() {
     artifacts.UniswapV2Router02.bytecode,
     owner
   );
-  const routerV2 = await RouterV2.deploy(factoryV2.address, WETH_ADDRESS);
+  const routerV2 = await RouterV2.deploy(factoryV2.address, WHYDRA_ADDRESS);
 
   console.log("V2 Router deployed to:", routerV2.address);
 

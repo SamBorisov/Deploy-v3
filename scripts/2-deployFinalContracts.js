@@ -1,3 +1,4 @@
+// npx hardhat run scripts/2-deployFinalContracts.js --network hydraTest
 const { ContractFactory, utils } = require("ethers");
 const fs = require("fs");
 const { promisify } = require("util");
@@ -6,7 +7,7 @@ const { loadEnvironmentVariables } = require("./_helpers");
 // Load environment variables
 loadEnvironmentVariables();
 
-const WETH_ADDRESS = process.env.WETH_ADDRESS;
+const WHYDRA_ADDRESS = process.env.WHYDRA_ADDRESS;
 const FACTORY_ADDRESS = process.env.FACTORY_ADDRESS;
 const FACTORY_V2_ADDRESS = process.env.FACTORY_V2_ADDRESS;
 const NFT_DESCRIPTOR_ADDRESS = process.env.NFT_DESCRIPTOR_ADDRESS;
@@ -70,7 +71,7 @@ async function main() {
   );
 
   // NFT Descriptor
-  const nativeCurrencyLabelBytes = utils.formatBytes32String("WETH");
+  const nativeCurrencyLabelBytes = utils.formatBytes32String("WHYDRA");
   const NonfungibleTokenPositionDescriptor = new ContractFactory(
     artifacts.NonfungibleTokenPositionDescriptor.abi,
     linkedBytecode,
@@ -78,7 +79,7 @@ async function main() {
   );
   const nonfungibleTokenPositionDescriptor =
     await NonfungibleTokenPositionDescriptor.deploy(
-      WETH_ADDRESS,
+      WHYDRA_ADDRESS,
       nativeCurrencyLabelBytes
     );
 
@@ -95,7 +96,7 @@ async function main() {
   );
   const nonfungiblePositionManager = await NonfungiblePositionManager.deploy(
     FACTORY_ADDRESS,
-    WETH_ADDRESS,
+    WHYDRA_ADDRESS,
     nonfungibleTokenPositionDescriptor.address
   );
 
@@ -114,7 +115,7 @@ async function main() {
     FACTORY_V2_ADDRESS,
     FACTORY_ADDRESS,
     nonfungiblePositionManager.address,
-    WETH_ADDRESS
+    WHYDRA_ADDRESS
   );
 
   console.log("Swap Router deployed to:", swapRouter.address);
@@ -127,7 +128,7 @@ async function main() {
   );
   const v3Migrator = await V3Migrator.deploy(
     FACTORY_ADDRESS,
-    WETH_ADDRESS,
+    WHYDRA_ADDRESS,
     nonfungiblePositionManager.address
   );
 
@@ -139,7 +140,7 @@ async function main() {
     artifacts.QuoterV2.bytecode,
     owner
   );
-  const quoterV2 = await QuoterV2.deploy(FACTORY_ADDRESS, WETH_ADDRESS);
+  const quoterV2 = await QuoterV2.deploy(FACTORY_ADDRESS, WHYDRA_ADDRESS);
 
   console.log("Quoter V2 deployed to:", quoterV2.address);
 

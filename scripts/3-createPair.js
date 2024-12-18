@@ -6,7 +6,7 @@ const { loadEnvironmentVariables } = require("./_helpers");
 // Load environment variables
 loadEnvironmentVariables();
 
-WETH_ADDRESS = process.env.WETH_ADDRESS;
+WHYDRA_ADDRESS = process.env.WHYDRA_ADDRESS;
 MY_TOKEN1_ADDRESS = process.env.MY_TOKEN1_ADDRESS;
 MY_TOKEN2_ADDRESS = process.env.MY_TOKEN2_ADDRESS;
 FACTORY_V2_ADDRESS = process.env.FACTORY_V2_ADDRESS;
