@@ -3,8 +3,8 @@ require("@nomicfoundation/hardhat-toolbox");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: { // V3
-    version: "0.7.6",
+  solidity: { // WETH9
+    version: "0.4.23",
     settings: {
       optimizer: {
         enabled: true,
@@ -19,6 +19,16 @@ module.exports = {
   //     optimizer: {
   //       enabled: true,
   //       runs: 999999,
+  //       details: { yul: false },
+  //     },
+  //   },
+  // },
+  // solidity: { // V3
+  //   version: "0.7.6",
+  //   settings: {
+  //     optimizer: {
+  //       enabled: true,
+  //       runs: 1000,
   //       details: { yul: false },
   //     },
   //   },

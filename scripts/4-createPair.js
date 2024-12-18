@@ -35,14 +35,6 @@ async function main() {
     provider
   );
 
-  await MT1Contract.connect(_owner).mint(
-    _owner.address,
-    ethers.utils.parseEther("1000")
-  );
-  await MT2Contract.connect(_owner).mint(
-    _owner.address,
-    ethers.utils.parseEther("1000")
-  );
   await MT1Contract.connect(_owner).approve(
     ROUTER_V2_ADDRESS,
     ethers.utils.parseEther("1000")
@@ -119,8 +111,8 @@ async function main() {
 }
 
 /*
-    npx hardhat run --network localhost scripts/3-createPair.js
-    npx hardhat run --network hydraTest scripts/3-createPair.js
+    npx hardhat run --network localhost scripts/4-createPair.js
+    npx hardhat run --network hydraTest scripts/4-createPair.js
 */
 
 main()

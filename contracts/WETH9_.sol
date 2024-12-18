@@ -1,27 +1,36 @@
 pragma solidity >=0.4.23;
 
-contract MyToken {
-    string public name;
-    string public symbol;
+contract WETH9_ {
+    string public name = "Wrapped Hydra"; // Change if needed
+    string public symbol = "WHYDRA"; // Change if needed
     uint8 public decimals = 18;
-
-    constructor(string _name, string _symbol) public {
-        name = _name;
-        symbol = _symbol;
-        uint256 initialSupply = 1000000000 * 10 ** uint(decimals);
-        balanceOf[msg.sender] = initialSupply;
-        totalSupply_ = initialSupply;
-    }
 
     event Approval(address indexed src, address indexed guy, uint wad);
     event Transfer(address indexed src, address indexed dst, uint wad);
+    event Deposit(address indexed dst, uint wad);
+    event Withdrawal(address indexed src, uint wad);
 
-    uint256 private totalSupply_;
     mapping(address => uint) public balanceOf;
     mapping(address => mapping(address => uint)) public allowance;
 
+    function() external payable {
+        deposit();
+    }
+
+    function deposit() public payable {
+        balanceOf[msg.sender] += msg.value;
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdraw(uint wad) public {
+        require(balanceOf[msg.sender] >= wad);
+        balanceOf[msg.sender] -= wad;
+        msg.sender.transfer(wad);
+        emit Withdrawal(msg.sender, wad);
+    }
+
     function totalSupply() public view returns (uint) {
-        return totalSupply_;
+        return address(this).balance;
     }
 
     function approve(address guy, uint wad) public returns (bool) {

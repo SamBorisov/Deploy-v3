@@ -150,7 +150,7 @@ async function main() {
     `POSITION_MANAGER_ADDRESS=${nonfungiblePositionManager.address}`,
     `V3_MIGRATOR_ADDRESS=${v3Migrator.address}`,
     `QUOTER_V2_ADDRESS=${quoterV2.address}`,
-    `___________DEPLOYED_ADDRESSES_FINAL___________`,
+    `___________V3_DEPLOYMENT_FINISH___________`,
   ];
 
   const data = "\n" + addresses.join("\n");
@@ -168,9 +168,9 @@ async function main() {
 }
 
 /*
-    npx hardhat run --network localhost scripts/2-deployFinalContracts.js
-    npx hardhat run --network hydraTest scripts/2-deployFinalContracts.js
-    npx hardhat run --network devTest scripts/2-deployFinalContracts.js
+    npx hardhat run --network localhost scripts/3-deployFinalContracts.js
+    npx hardhat run --network hydraTest scripts/3-deployFinalContracts.js
+    npx hardhat run --network devTest scripts/3-deployFinalContracts.js
 */
 
 main()

@@ -1,4 +1,4 @@
-const { ContractFactory, utils } = require("ethers");
+const { ContractFactory } = require("ethers");
 const fs = require("fs");
 const { promisify } = require("util");
 const { loadEnvironmentVariables } = require("./_helpers");
@@ -44,7 +44,7 @@ async function main() {
   let addresses = [
     `FACTORY_V2_ADDRESS=${factoryV2.address}`,
     `ROUTER_V2_ADDRESS=${routerV2.address}`,
-    `___________DEPLOYED_ADDRESSES_V2___________`,
+    `___________V2_CONTRACTS_SET___________`,
   ];
 
   const data = "\n" + addresses.join("\n");
