@@ -3,25 +3,21 @@ const fs = require("fs");
 const { promisify } = require("util");
 
 async function main() {
-  const [owner] = await ethers.getSigners();
-
-  // // If you wanna use local, replace this with _owner or another signer
-  // const provider = ethers.provider;
-  // const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  const [signer] = await ethers.getSigners();
 
   // WETH
-  const Weth9 = await ethers.getContractFactory("WETH9_", owner);
+  const Weth9 = await ethers.getContractFactory("WETH9_", signer);
   const weth = await Weth9.deploy();
 
   console.log("WETH deployed to:", weth.address);
 
-  // Create 2 mock tokens and mint to owner (NO NEED ON PRODUCTION)
-  const MyToken1 = await ethers.getContractFactory("MyToken", owner);
+  // Create 2 mock tokens and mint to signer (NO NEED ON PRODUCTION)
+  const MyToken1 = await ethers.getContractFactory("MyToken", signer);
   const myToken1 = await MyToken1.deploy("MyToken1", "MT1");
 
   console.log("MyToken1 deployed to:", myToken1.address);
 
-  const MyToken2 = await ethers.getContractFactory("MyToken", owner);
+  const MyToken2 = await ethers.getContractFactory("MyToken", signer);
   const myToken2 = await MyToken2.deploy("MyToken2", "MT2");
 
   console.log("MyToken2 deployed to:", myToken2.address);

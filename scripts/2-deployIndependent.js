@@ -11,17 +11,16 @@ const artifacts = {
 };
 
 async function main() {
-  const [owner] = await ethers.getSigners();
-
-  // // If you wanna use local, replace this with _owner or another signer
-  // const provider = ethers.provider;
-  // const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  const [signer] = await ethers.getSigners();
+  const governance = process.env.GOVERNANCE_ADDRESS;
+  console.log("Deploying with signer:", signer.address);
+  console.log("Setting owner to governance:", governance);
 
   // V3 Factory
   const Factory = new ContractFactory(
     artifacts.UniswapV3Factory.abi,
     artifacts.UniswapV3Factory.bytecode,
-    owner
+    signer
   );
   const factory = await Factory.deploy();
 
@@ -31,17 +30,24 @@ async function main() {
   const ONE_BP_FEE = 100;
   const ONE_BP_TICK_SPACING = 1;
   const tx = await factory
-    .connect(owner)
+    .connect(signer)
     .enableFeeAmount(ONE_BP_FEE, ONE_BP_TICK_SPACING);
   await tx.wait();
 
   console.log("Fee 0.01% added to factory.");
 
+  // Set owner to governance
+  const txSetOwner = await factory.connect(signer).setOwner(governance);
+  await txSetOwner.wait();
+  const currentOwner = await factory.owner();
+
+  console.log("Owner set to:", currentOwner);
+
   // NFT Descriptor Library
   const NFTDescriptor = new ContractFactory(
     artifacts.NFTDescriptor.abi,
     artifacts.NFTDescriptor.bytecode,
-    owner
+    signer
   );
   const nftDescriptor = await NFTDescriptor.deploy();
 
@@ -51,7 +57,7 @@ async function main() {
   const UniswapInterfaceMulticall = new ContractFactory(
     artifacts.UniswapInterfaceMulticall.abi,
     artifacts.UniswapInterfaceMulticall.bytecode,
-    owner
+    signer
   );
   const uniswapInterfaceMulticall = await UniswapInterfaceMulticall.deploy();
 
@@ -64,7 +70,7 @@ async function main() {
   const TickLens = new ContractFactory(
     artifacts.TickLens.abi,
     artifacts.TickLens.bytecode,
-    owner
+    signer
   );
   const tickLens = await TickLens.deploy();
 

@@ -21,7 +21,7 @@ const artifacts = {
 
 async function main() {
   const provider = ethers.provider;
-  const [_owner] = await ethers.getSigners();
+  const [signer] = await ethers.getSigners();
 
   // Mint Tokens and Approve
   const MT1Contract = new Contract(
@@ -35,11 +35,11 @@ async function main() {
     provider
   );
 
-  await MT1Contract.connect(_owner).approve(
+  await MT1Contract.connect(signer).approve(
     ROUTER_V2_ADDRESS,
     ethers.utils.parseEther("1000")
   );
-  await MT2Contract.connect(_owner).approve(
+  await MT2Contract.connect(signer).approve(
     ROUTER_V2_ADDRESS,
     ethers.utils.parseEther("1000")
   );
@@ -58,7 +58,7 @@ async function main() {
   );
 
   // Create Pair
-  const tx1 = await FactoryV2.connect(_owner).createPair(
+  const tx1 = await FactoryV2.connect(signer).createPair(
     MT1Contract.address,
     MT2Contract.address
   );
@@ -68,7 +68,7 @@ async function main() {
     MT2Contract.address
   );
 
-  const pair = new Contract(pairAddress, artifacts.UniswapV2Pair.abi, _owner);
+  const pair = new Contract(pairAddress, artifacts.UniswapV2Pair.abi, signer);
   let reserves;
   reserves = await pair.getReserves();
   console.log("Reserves Before", reserves);
@@ -77,14 +77,14 @@ async function main() {
   const token0Amount = utils.parseUnits("100");
   const token1Amount = utils.parseUnits("100");
   const deadline = Math.floor(Date.now() / 1000 + 10 * 60);
-  const addLiquidityTx = await RouterV2.connect(_owner).addLiquidity(
+  const addLiquidityTx = await RouterV2.connect(signer).addLiquidity(
     MT1Contract.address,
     MT2Contract.address,
     token0Amount,
     token1Amount,
     0,
     0,
-    _owner.address,
+    signer.address,
     deadline,
     { gasLimit: utils.hexlify(1000000) }
   );

@@ -41,7 +41,7 @@ async function getPoolData(poolContract) {
 
 async function main() {
   const provider = ethers.provider;
-  const [_owner] = await ethers.getSigners();
+  const [signer] = await ethers.getSigners();
 
   const MT1Contract = new Contract(
     MY_TOKEN1_ADDRESS,
@@ -54,11 +54,11 @@ async function main() {
     provider
   );
 
-  await MT1Contract.connect(_owner).approve(
+  await MT1Contract.connect(signer).approve(
     POSITION_MANAGER_ADDRESS,
     ethers.utils.parseEther("1000")
   );
-  await MT2Contract.connect(_owner).approve(
+  await MT2Contract.connect(signer).approve(
     POSITION_MANAGER_ADDRESS,
     ethers.utils.parseEther("1000")
   );
@@ -111,7 +111,7 @@ async function main() {
     amount1Desired: amount1Desired.toString(),
     amount0Min: 0,
     amount1Min: 0,
-    recipient: _owner.address,
+    recipient: signer.address,
     deadline: Math.floor(Date.now() / 1000) + 60 * 10,
   };
 
@@ -122,7 +122,7 @@ async function main() {
   );
 
   const tx = await nonfungiblePositionManager
-    .connect(_owner)
+    .connect(signer)
     .mint(params, { gasLimit: "1000000" });
   await tx.wait();
 

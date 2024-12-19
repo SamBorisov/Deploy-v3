@@ -43,11 +43,11 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
 };
 
 async function main() {
-  const [owner] = await ethers.getSigners();
+  const [signer] = await ethers.getSigners();
 
-  // // If you wanna use local, replace this with _owner or another signer
+  // // If you wanna use local, replace this with _signer or another signer
   // const provider = ethers.provider;
-  // const owner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  // const signer = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
   // NFT Descriptor Library Linking
   const linkedBytecode = linkLibraries(
@@ -74,7 +74,7 @@ async function main() {
   const NonfungibleTokenPositionDescriptor = new ContractFactory(
     artifacts.NonfungibleTokenPositionDescriptor.abi,
     linkedBytecode,
-    owner
+    signer
   );
   const nonfungibleTokenPositionDescriptor =
     await NonfungibleTokenPositionDescriptor.deploy(
@@ -91,7 +91,7 @@ async function main() {
   const NonfungiblePositionManager = new ContractFactory(
     artifacts.NonfungiblePositionManager.abi,
     artifacts.NonfungiblePositionManager.bytecode,
-    owner
+    signer
   );
   const nonfungiblePositionManager = await NonfungiblePositionManager.deploy(
     FACTORY_ADDRESS,
@@ -108,7 +108,7 @@ async function main() {
   const SwapRouter = new ContractFactory(
     artifacts.SwapRouter.abi,
     artifacts.SwapRouter.bytecode,
-    owner
+    signer
   );
   const swapRouter = await SwapRouter.deploy(
     FACTORY_V2_ADDRESS,
@@ -123,7 +123,7 @@ async function main() {
   const V3Migrator = new ContractFactory(
     artifacts.UniswapV3Migrator.abi,
     artifacts.UniswapV3Migrator.bytecode,
-    owner
+    signer
   );
   const v3Migrator = await V3Migrator.deploy(
     FACTORY_ADDRESS,
@@ -137,7 +137,7 @@ async function main() {
   const QuoterV2 = new ContractFactory(
     artifacts.QuoterV2.abi,
     artifacts.QuoterV2.bytecode,
-    owner
+    signer
   );
   const quoterV2 = await QuoterV2.deploy(FACTORY_ADDRESS, WETH_ADDRESS);
 

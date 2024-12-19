@@ -30,27 +30,27 @@ function encodePriceSqrt(reserve1, reserve0) {
 }
 
 async function deployPool(token0, token1, fee, price) {
-  const [owner] = await ethers.getSigners();
+  const [signer] = await ethers.getSigners();
 
   const nonfungiblePositionManager = new Contract(
     POSITION_MANAGER_ADDRESS,
     artifacts.NonfungiblePositionManager.abi,
-    owner
+    signer
   );
 
   const factory = new Contract(
     FACTORY_ADDRESS,
     artifacts.UniswapV3Factory.abi,
-    owner
+    signer
   );
 
   await nonfungiblePositionManager
-    .connect(owner)
+    .connect(signer)
     .createAndInitializePoolIfNecessary(token0, token1, fee, price, {
       gasLimit: 5000000,
     });
 
-  const poolAddress = await factory.connect(owner).getPool(token0, token1, fee);
+  const poolAddress = await factory.connect(signer).getPool(token0, token1, fee);
   return poolAddress;
 }
 

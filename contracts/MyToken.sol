@@ -6,7 +6,7 @@ contract MyToken {
     uint8 private _decimals = 18;
     uint256 private _totalSupply;
 
-    constructor(string name, string symbol) public {
+    constructor(string memory name, string memory symbol) public {
         _name = name;
         _symbol = symbol;
         uint256 initialSupply = 1000000000 * 10 ** uint256(_decimals);
@@ -20,11 +20,11 @@ contract MyToken {
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) public _allowances;
 
-    function name() public view returns (string) {
+    function name() public view returns (string memory) {
         return _name;
     }
 
-    function symbol() public view returns (string) {
+    function symbol() public view returns (string memory) {
         return _symbol;
     }
 
